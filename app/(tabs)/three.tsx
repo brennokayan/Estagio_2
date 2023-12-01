@@ -8,7 +8,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { View } from "../../components/Themed";
 import { useContext, useEffect, useState } from "react";
 import { Text } from "../../components/Themed";
-import { getEmpresa, getFuncionarios, getProdutos } from "../src/services/api";
+import { getCargos } from "../src/services/api";
 import { buttonDelete, buttonEdit } from "../../constants/Colors";
 import { Link, useNavigation } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
@@ -18,22 +18,18 @@ import { EditEmpresaContext } from "../src/context/DataContext";
 interface dataProps {
   id: string;
   nome: string;
-  preco: number;
-  descricao: string;
 }
 interface empresaProps {
-  produtos: dataProps[];
+  cargos: dataProps[];
 }
 
 export default function tabOne() {
   const [data, setData] = useState<empresaProps | null>(null);
   const [externalData, setExternalData] = useState<empresaProps | null>({
-    produtos: [
+    cargos: [
       {
         id: "1",
         nome: "teste",
-        preco: 1000,
-        descricao: "teste",
       },
     ],
   });
@@ -52,20 +48,14 @@ export default function tabOne() {
           marginBottom: 16,
         }}
       >
-        <View style={{ width: "25%" }}>
+        <View style={{ width: "50%" }}>
           <Text style={{ textAlign: "center" }}>{item.nome}</Text>
-        </View>
-        <View style={{ width: "25%" }}>
-          <Text style={{ textAlign: "center" }}>{item.preco}</Text>
-        </View>
-        <View style={{ width: "25%" }}>
-          <Text style={{ textAlign: "center" }}>{item.descricao}</Text>
         </View>
         <View
           style={{
             display: "flex",
             flexDirection: "row",
-            width: "25%",
+            width: "50%",
             alignItems: "center",
             justifyContent: "center",
             gap: 16,
@@ -75,21 +65,15 @@ export default function tabOne() {
             title={"edi"}
             color={buttonEdit}
             onPress={() => {
-              setEmpresa({
-                id: item.id,
-                nome: item.nome,
-                preco: Number(item.preco),
-                descricao: item.descricao,
-                type: "Produto",
-              }),
-                navigate.navigate("editar_produto" as never);
+              setEmpresa({ id: item.id, nome: item.nome, type: "Cargo" }),
+                navigate.navigate("editar_cargo" as never);
             }}
           />
           <Button
             title={"del"}
             color={buttonDelete}
             onPress={() => {
-              setEmpresa({ id: item.id, nome: item.nome, type: "Produto" }),
+              setEmpresa({ id: item.id, nome: item.nome, type: "Cargo" }),
                 navigate.navigate("Deletar" as never);
             }}
           />
@@ -98,14 +82,14 @@ export default function tabOne() {
     );
   };
   function getData() {
-    getProdutos().then((res) => {
+    getCargos().then((res) => {
       setData(res.data.data);
     });
   }
   useEffect(() => {
     getData();
   }, []);
-  console.log(data?.produtos);
+  // console.log(data?.cargos);
 
   return (
     <View style={{ height: "100%", maxWidth: "100%", width: "100%" }}>
@@ -123,8 +107,7 @@ export default function tabOne() {
             getData();
           }}
         />
-        {/* <AdicionarButton type="Empresa" href="adicionar_empresa" /> */}
-        <AdicionarButton type="Produto" href="adicionar_produto" />
+        <AdicionarButton type="Cargo" href="adicionar_cargo" />
       </View>
       <ScrollView>
         <View
@@ -135,25 +118,15 @@ export default function tabOne() {
             marginBottom: 16,
           }}
         >
-          <View style={{ width: "25%" }}>
+          <View style={{ width: "50%" }}>
             <Text style={{ textAlign: "center" }}>Nome</Text>
           </View>
-          <View style={{ width: "25%" }}>
-            <Text style={{ textAlign: "center" }}>Preço</Text>
-          </View>
-          <View style={{ width: "25%" }}>
-            <Text style={{ textAlign: "center" }}>Descrição</Text>
-          </View>
-          <View style={{ width: "25%" }}>
+          <View style={{ width: "50%" }}>
             <Text style={{ textAlign: "center" }}>Ações</Text>
           </View>
         </View>
         <FlatList
-          data={
-            data?.produtos == undefined
-              ? externalData?.produtos
-              : data?.produtos
-          }
+          data={data?.cargos == undefined ? externalData?.cargos : data?.cargos}
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
         />

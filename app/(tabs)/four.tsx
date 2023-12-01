@@ -8,7 +8,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { View } from "../../components/Themed";
 import { useContext, useEffect, useState } from "react";
 import { Text } from "../../components/Themed";
-import { getEmpresa, getFuncionarios, getProdutos } from "../src/services/api";
+import { getEmpresa, getFuncionarios } from "../src/services/api";
 import { buttonDelete, buttonEdit } from "../../constants/Colors";
 import { Link, useNavigation } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
@@ -18,22 +18,29 @@ import { EditEmpresaContext } from "../src/context/DataContext";
 interface dataProps {
   id: string;
   nome: string;
-  preco: number;
-  descricao: string;
+  empresa: {
+    id: string;
+    nome: string;
+  };
+  cargo: {
+    id: string;
+    nome: string;
+  };
 }
 interface empresaProps {
-  produtos: dataProps[];
+  funcionarios: dataProps[];
 }
 
 export default function tabOne() {
   const [data, setData] = useState<empresaProps | null>(null);
+
   const [externalData, setExternalData] = useState<empresaProps | null>({
-    produtos: [
+    funcionarios: [
       {
         id: "1",
         nome: "teste",
-        preco: 1000,
-        descricao: "teste",
+        cargo: { id: "1", nome: "teste cargo" },
+        empresa: { id: "1", nome: "teste empresa" },
       },
     ],
   });
@@ -56,10 +63,10 @@ export default function tabOne() {
           <Text style={{ textAlign: "center" }}>{item.nome}</Text>
         </View>
         <View style={{ width: "25%" }}>
-          <Text style={{ textAlign: "center" }}>{item.preco}</Text>
+          <Text style={{ textAlign: "center" }}>{item.empresa.nome}</Text>
         </View>
         <View style={{ width: "25%" }}>
-          <Text style={{ textAlign: "center" }}>{item.descricao}</Text>
+          <Text style={{ textAlign: "center" }}>{item.cargo.nome}</Text>
         </View>
         <View
           style={{
@@ -78,18 +85,18 @@ export default function tabOne() {
               setEmpresa({
                 id: item.id,
                 nome: item.nome,
-                preco: Number(item.preco),
-                descricao: item.descricao,
-                type: "Produto",
+                empresaId: item.empresa.id,
+                cargoId: item.cargo.id,
+                type: "Funcionário",
               }),
-                navigate.navigate("editar_produto" as never);
+                navigate.navigate("editar_funcionario" as never);
             }}
           />
           <Button
             title={"del"}
             color={buttonDelete}
             onPress={() => {
-              setEmpresa({ id: item.id, nome: item.nome, type: "Produto" }),
+              setEmpresa({ id: item.id, nome: item.nome, type: "Funcionário" }),
                 navigate.navigate("Deletar" as never);
             }}
           />
@@ -98,14 +105,13 @@ export default function tabOne() {
     );
   };
   function getData() {
-    getProdutos().then((res) => {
+    getFuncionarios().then((res) => {
       setData(res.data.data);
     });
   }
   useEffect(() => {
     getData();
   }, []);
-  console.log(data?.produtos);
 
   return (
     <View style={{ height: "100%", maxWidth: "100%", width: "100%" }}>
@@ -123,8 +129,7 @@ export default function tabOne() {
             getData();
           }}
         />
-        {/* <AdicionarButton type="Empresa" href="adicionar_empresa" /> */}
-        <AdicionarButton type="Produto" href="adicionar_produto" />
+        <AdicionarButton type="Funcionário" href="adicionar_funcionario" />
       </View>
       <ScrollView>
         <View
@@ -139,10 +144,10 @@ export default function tabOne() {
             <Text style={{ textAlign: "center" }}>Nome</Text>
           </View>
           <View style={{ width: "25%" }}>
-            <Text style={{ textAlign: "center" }}>Preço</Text>
+            <Text style={{ textAlign: "center" }}>Empresa</Text>
           </View>
           <View style={{ width: "25%" }}>
-            <Text style={{ textAlign: "center" }}>Descrição</Text>
+            <Text style={{ textAlign: "center" }}>Cargo</Text>
           </View>
           <View style={{ width: "25%" }}>
             <Text style={{ textAlign: "center" }}>Ações</Text>
@@ -150,9 +155,9 @@ export default function tabOne() {
         </View>
         <FlatList
           data={
-            data?.produtos == undefined
-              ? externalData?.produtos
-              : data?.produtos
+            data?.funcionarios == undefined
+              ? externalData?.funcionarios
+              : data?.funcionarios
           }
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
